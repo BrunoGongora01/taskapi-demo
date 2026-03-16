@@ -5,7 +5,9 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  imageName: taskapi
+  imageRepository: taskapi
+  containerRegistry: acr-taskapi-connection
+  tag: $(Build.BuildId)
 
 steps:
 
@@ -17,16 +19,22 @@ steps:
 - task: DotNetCoreCLI@2
   displayName: Restore
   inputs:
-    command: 'restore'
+    command: restore
     projects: '**/*.csproj'
 
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
-    command: 'build'
+    command: build
     projects: '**/*.csproj'
     arguments: '--configuration Release'
 
-- script: |
-    docker build -t $(imageName) .
-  displayName: Build Docker Image
+- task: Docker@2
+  displayName: Build and Push Image
+  inputs:
+    containerRegistry: $(containerRegistry)
+    repository: $(imageRepository)
+    command: buildAndPush
+    Dockerfile: '**/Dockerfile'
+    tags: |
+      $(tag)
