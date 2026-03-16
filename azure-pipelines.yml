@@ -38,3 +38,11 @@ steps:
     Dockerfile: '**/Dockerfile'
     tags: |
       $(tag)
+
+      - script: |
+        az containerapp update \
+          --name taskapi-app \
+          --resource-group gr-taskapi-demo \
+          --image taskapiregistrydemo.azurecr.io/taskapi:$(Build.BuildId)
+
+        displayName: Deploy Container App
